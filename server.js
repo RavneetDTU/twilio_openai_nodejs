@@ -4,11 +4,12 @@ import dotenv from "dotenv";
 import WebSocket, { WebSocketServer } from "ws";
 import bodyParser from "body-parser";
 import http from "http";
+import cron from "node-cron";
 
 // Load environment variables from .env
 dotenv.config();
 
-const { OPENAI_API_KEY, PORT = 5050 } = process.env;
+const { OPENAI_API_KEY, PORT = 5050, RENDER_EXTERNAL_URL } = process.env;
 
 if (!OPENAI_API_KEY) {
   console.error("❌ Missing OpenAI API key. Please set it in the .env file.");
@@ -45,6 +46,16 @@ app.use(bodyParser.json());
 // Root route
 app.get("/", (req, res) => {
   res.json({ message: "Twilio Media Stream Express Server is running!" });
+});
+
+// Health check endpoint
+app.get("/health", (req, res) => {
+  res.status(200).json({ 
+    status: "OK", 
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    memory: process.memoryUsage()
+  });
 });
 
 // Twilio webhook: handle incoming calls
@@ -252,7 +263,40 @@ wss.on("connection", (connection, req) => {
   });
 });
 
+// Health check cron job (runs every 60 seconds)
+cron.schedule('*/60 * * * * *', async () => {
+  try {
+    const baseUrl = RENDER_EXTERNAL_URL || `http://localhost:${PORT}`;
+    const healthUrl = `${baseUrl}/health`;
+    
+    console.log(`🩺 Running health check: ${healthUrl}`);
+    
+    const response = await fetch(healthUrl);
+    
+    if (response.ok) {
+      const healthData = await response.json();
+      console.log('✅ Health check passed:', {
+        status: healthData.status,
+        timestamp: healthData.timestamp,
+        uptime: Math.round(healthData.uptime)
+      });
+    } else {
+      console.error('❌ Health check failed:', response.status, response.statusText);
+    }
+  } catch (error) {
+    console.error('❌ Health check error:', error.message);
+  }
+});
+
+console.log('⏰ Health check cron job scheduled to run every 60 seconds');
+
 // Start Express + WebSocket server
 server.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
+  console.log(`🩺 Health endpoint available at http://localhost:${PORT}/health`);
+  
+  if (RENDER_EXTERNAL_URL) {
+    console.log(`🌐 External URL: ${RENDER_EXTERNAL_URL}`);
+    console.log(`🩺 External Health endpoint: ${RENDER_EXTERNAL_URL}/health`);
+  }
 });
