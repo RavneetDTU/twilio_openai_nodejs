@@ -5,7 +5,7 @@ import WebSocket, { WebSocketServer } from "ws";
 import bodyParser from "body-parser";
 import http from "http";
 import cron from "node-cron";
-import { BILLYS_STEAKHOUSE_PROMPT } from "./prompt";
+import { BILLYS_STEAKHOUSE_PROMPT } from "./prompt.js";
 
 // Load environment variables from .env
 dotenv.config();
