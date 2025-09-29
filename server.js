@@ -62,11 +62,6 @@ app.get("/health", (req, res) => {
 app.all("/incoming-call", (req, res) => {
   const twimlResponse = `<?xml version="1.0" encoding="UTF-8"?>
     <Response>
-      <Say voice="Google.en-US-Chirp3-HD-Aoede">
-        Please wait while we connect your call to the AI voice assistant, powered by Twilio and the Open A I Realtime API
-      </Say>
-      <Pause length="1"/>
-      <Say voice="Google.en-US-Chirp3-HD-Aoede">O.K. you can start talking!</Say>
       <Connect>
         <Stream url="wss://${req.headers.host}/media-stream" />
       </Connect>
@@ -123,7 +118,11 @@ wss.on("connection", (connection, req) => {
             format: { type: "audio/pcmu" },
             turn_detection: { type: "server_vad" },
           },
-          output: { format: { type: "audio/pcmu" }, voice: VOICE },
+          output: { 
+            format: { type: "audio/pcmu" },
+           voice: VOICE, 
+           speed: 1.2,
+           },
         },
         instructions: SYSTEM_MESSAGE,
       },
