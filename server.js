@@ -5,6 +5,7 @@ import WebSocket, { WebSocketServer } from "ws";
 import bodyParser from "body-parser";
 import http from "http";
 import cron from "node-cron";
+import { BILLYS_STEAKHOUSE_PROMPT } from "./prompt";
 
 // Load environment variables from .env
 dotenv.config();
@@ -17,8 +18,7 @@ if (!OPENAI_API_KEY) {
 }
 
 // Constants
-const SYSTEM_MESSAGE =
-  "You are a helpful and bubbly AI assistant who loves to chat about anything the user is interested about and is prepared to offer them facts. You have a penchant for dad jokes, owl jokes, and rickrolling – subtly. Always stay positive, but work in a joke when appropriate.";
+const SYSTEM_MESSAGE = BILLYS_STEAKHOUSE_PROMPT;
 const VOICE = "alloy";
 const TEMPERATURE = 0.8;
 
