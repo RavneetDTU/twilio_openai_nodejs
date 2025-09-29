@@ -121,7 +121,7 @@ wss.on("connection", (connection, req) => {
           output: { 
             format: { type: "audio/pcmu" },
            voice: VOICE, 
-           speed: 1.2,
+           speed: 1.15,
            },
         },
         instructions: SYSTEM_MESSAGE,
